@@ -53,3 +53,10 @@ services:
         condition: service_started
     env_file:
       - .env
+
+  # NIFI
+  nifi:
+    image: apache/nifi:latest
+    ports:
+      - "8080:8080"
+    restart: unless-stopped
