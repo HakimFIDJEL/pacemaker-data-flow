@@ -56,7 +56,10 @@ services:
 
   # NIFI
   nifi:
-    image: apache/nifi:latest
+    # image: apache/nifi:latest
+    build:
+      context: .
+      dockerfile: Dockerfile.nifi
     environment:
       NIFI_WEB_HTTPS_PORT: "8443"
       SINGLE_USER_CREDENTIALS_USERNAME: ${NIFI_USER}
