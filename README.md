@@ -32,7 +32,7 @@ http://localhost:8081
 
 ### Accéder à l'UI NIFI
 ```bash
-http://localhost:8443/nifi
+https://localhost:8443/nifi
 ```
 
 ### Arrêt des containers
