@@ -57,6 +57,57 @@ services:
   # NIFI
   nifi:
     image: apache/nifi:latest
-    ports:
-      - "8080:8080"
+    environment:
+      NIFI_WEB_HTTPS_PORT: "8443"
+      SINGLE_USER_CREDENTIALS_USERNAME: ${NIFI_USER}
+      SINGLE_USER_CREDENTIALS_PASSWORD: ${NIFI_PASSWORD}
+    ports: ["8443:8443"]
+    depends_on:
+      mysql:
+        condition: service_healthy
     restart: unless-stopped
+    env_file: [.env]
+
+
+  # MYSQL
+  mysql:
+    image: mysql:8.4
+    container_name: mysql
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    ports: ["${MYSQL_PORT}:3306"]
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-p${MYSQL_ROOT_PASSWORD}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+    restart: unless-stopped
+    env_file: [.env]
+
+  # PHPMYADMIN
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    environment:
+      PMA_HOST: ${MYSQL_HOST}
+      PMA_PORT: ${MYSQL_PORT}
+      UPLOAD_LIMIT: 256M
+    ports: ["${PMA_PORT}:80"]
+    depends_on:
+      mysql:
+        condition: service_healthy
+    restart: unless-stopped
+    env_file: [.env]
+
+volumes:
+  mysql-data:
+  nifi-conf:
+  nifi-state:
+  nifi-db:
+  nifi-flowfile:
+  nifi-content:
+  nifi-provenance:
